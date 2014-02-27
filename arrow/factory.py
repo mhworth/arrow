@@ -14,6 +14,7 @@ from arrow.util import isstr
 
 from datetime import datetime, tzinfo
 from dateutil import tz as dateutil_tz
+from time import mktime, struct_time
 
 
 class ArrowFactory(object):
@@ -103,6 +104,11 @@ class ArrowFactory(object):
 
             >>> arrow.get(2013, 5, 5, 12, 30, 45)
             <Arrow [2013-05-05T12:30:45+00:00]>
+
+        **One** time.struct time::
+            >>> arrow.get(gmtime(0))
+            <Arrow [1970-01-01T00:00:00+00:00]>
+
         '''
 
         arg_count = len(args)
@@ -141,6 +147,11 @@ class ArrowFactory(object):
             elif isstr(arg):
                 dt = parser.DateTimeParser(locale).parse_iso(arg)
                 return self.type.fromdatetime(dt)
+
+            # (struct_time) -> from struct_time
+            elif isinstance(arg, struct_time):
+                return self.type.fromdatetime(datetime.fromtimestamp(mktime(arg)))
+
 
             else:
                 raise TypeError('Can\'t parse single argument type of \'{0}\''.format(type(arg)))
