@@ -15,6 +15,11 @@ from arrow.util import isstr
 from datetime import datetime, tzinfo
 from dateutil import tz as dateutil_tz
 from time import mktime, struct_time
+parsedatetime = None
+try:
+    import parsedatetime
+except ImportError, e:
+    pass
 
 
 class ArrowFactory(object):
@@ -144,14 +149,19 @@ class ArrowFactory(object):
                 return self.type.now(arg)
 
             # (str) -> now, @ tzinfo.
-            elif isstr(arg):
+            elif isstr(arg) and not parsedatetime:
                 dt = parser.DateTimeParser(locale).parse_iso(arg)
                 return self.type.fromdatetime(dt)
+
+            # (str) -> from humanized string
+            elif isstr(arg) and parsedatetime:
+                calendar = parsedatetime.Calendar()
+                time_struct, _ = calendar.parse(arg)
+                return self.type.fromdatetime(datetime.fromtimestamp(mktime(time_struct)))
 
             # (struct_time) -> from struct_time
             elif isinstance(arg, struct_time):
                 return self.type.fromdatetime(datetime.fromtimestamp(mktime(arg)))
-
 
             else:
                 raise TypeError('Can\'t parse single argument type of \'{0}\''.format(type(arg)))
