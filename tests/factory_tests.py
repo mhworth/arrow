@@ -1,5 +1,5 @@
 from chai import Chai
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz
 import time
 
@@ -25,6 +25,11 @@ class GetTests(Chai):
     def test_one_arg_non(self):
 
         assertDtEqual(self.factory.get(None), datetime.utcnow().replace(tzinfo=tz.tzutc()))
+
+    def test_humanized(self):
+
+        assertDtEqual(self.factory.get("5 minutes ago"),
+            datetime.utcnow().replace(tzinfo=tz.tzutc()) - timedelta(minutes=5))
 
     def test_one_arg_timestamp(self):
 

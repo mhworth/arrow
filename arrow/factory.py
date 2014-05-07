@@ -156,7 +156,7 @@ class ArrowFactory(object):
             # (str) -> from humanized string
             elif isstr(arg) and parsedatetime:
                 calendar = parsedatetime.Calendar()
-                time_struct, _ = calendar.parse(arg)
+                time_struct, _ = calendar.parse(arg, sourceTime=datetime.utcnow())
                 return self.type.fromdatetime(datetime.fromtimestamp(mktime(time_struct)))
 
             # (struct_time) -> from struct_time
